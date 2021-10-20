@@ -1,0 +1,16 @@
+
+
+
+initContainer with kubectl
+initContainer with "service account" access to k8s cluster
+
+"random password generation" mechanism (maybe Helm has something we could use here?)
+
+  https://itnext.io/manage-auto-generated-secrets-in-your-helm-charts-5aee48ba6918
+  this has kubectl and helm: https://hub.docker.com/r/dtzar/helm-kubectl/
+
+write password to k8s Secret
+
+container with envFrom k8s Secret
+
+can just be a "busybox" that prints the value for now
