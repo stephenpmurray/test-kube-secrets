@@ -1,3 +1,4 @@
+{{ define "alertmanagerconfig" }}
 route:
   receiver: "alerta"
   group_by: ["alertname"]
@@ -8,8 +9,9 @@ route:
 receivers:
   - name: "alerta"
     webhook_configs:
-      - url: "http://alerta-api:8080/api/webhooks/prometheus?api-key={{ $akey }}"
+      - url: "http://alerta-api:8080/api/webhooks/prometheus?api-key={{ .adminKey | b64dec }}"
         send_resolved: true
 
       - url: "http://link-metrics/alerts"
         send_resolved: true
+{{ end }}
