@@ -1,6 +1,4 @@
 
-
-
 initContainer with kubectl
 initContainer with "service account" access to k8s cluster
 
@@ -14,3 +12,24 @@ write password to k8s Secret
 container with envFrom k8s Secret
 
 can just be a "busybox" that prints the value for now
+
+
+https://stackoverflow.com/questions/60771876/best-practices-passing-configurations-certificates-and-secrets-with-helm-install
+https://helm.sh/docs/chart_best_practices/#the-chart-best-practices-guide
+
+pre-install secrets with a hook:
+https://helm.sh/docs/topics/charts_hooks/
+
+
+---------------------------------------------
+21/10/21
+
+- secrets.data.secret should be camelCase not LIKE_THIS
+- when initialising an empty dict for secrets, ensure data field is created.
+- if we use the pre-install hook, secrets aren't deleted automatically
+
+- there is a helm lint tool availble (cool)
+- helm install --dry-run --debug is a good way to find out whats being templated
+
+
+  # alertmanager_yml: {{ tpl (.Files.Get "config/alertmanager.yml") . }}
