@@ -49,5 +49,4 @@ https://github.com/kubernetes/kubernetes/issues/24957
       running kubectl get secret secret-name from inside the container would be enough to verify that it works as expected
       also will then need to give the service account secret-write permissions
 
-kubectl apply -f manifests/serviceaccount.yml
-kubectl create rolebinding secretpeeper --clusterrole=secret-reader --serviceaccount=default:secret-peeper --namespace=default
+Done the above, also now trying to generate the oathkeeper secrets in a similart manner

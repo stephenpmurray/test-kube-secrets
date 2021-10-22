@@ -1,0 +1,34 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nso-sshkeygen
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: gen-secret
+          image: registry.nearbycomputing.com/nbycomp/tools/nso-secret
+          command:
+            - sh
+            - -c
+            - |
+              if ! kubectl get secret nso-keypair; then
+                ssh-keygen -t rsa -b 4096 -f nso_id_rsa -N "" -C nso
+                kubectl create secret generic nso-keypair \
+                  --from-file=privateKey=./nso_id_rsa \
+                  --from-file=publicKey=./nso_id_rsa.pub
+              else
+                echo 'secret already exists'
+              fi
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+      serviceAccountName: secret-keeper

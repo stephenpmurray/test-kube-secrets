@@ -1,13 +1,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: secretpeeper
+  name: secretkeeper
   namespace: default
 subjects:
   - kind: ServiceAccount
-    name: secret-peeper
+    name: secret-keeper
     namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: secret-reader
+  name: secret-keeper

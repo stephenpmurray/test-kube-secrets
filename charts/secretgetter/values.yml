@@ -1,1 +1,6 @@
 nsoSecretName: "nso-secret"
+
+oathkeeper:
+  secret:
+    managed: false
+    name: oathkeeper-secret
