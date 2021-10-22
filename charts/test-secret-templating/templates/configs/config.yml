@@ -1,0 +1,55 @@
+{{ define "kratosConfTpl" }}
+version: v0.6.3-alpha.1
+session:
+  lifespan: 24h
+serve:
+  public:
+    base_url: https://{{ .Values.traefikExternalHostname }}/.ory/kratos/public
+  admin:
+    base_url: http://kratos:4434/
+selfservice:
+  default_browser_return_url: https://{{ .Values.traefikExternalHostname }}/
+  whitelisted_return_urls:
+    - https://{{ .Values.traefikExternalHostname }}/
+    - https://{{ .Values.traefikExternalHostname }}/app/services
+  methods:
+    password:
+      enabled: { { .Values.kratos.passwordEnabled } }
+  flows:
+    error:
+      ui_url: https://{{ .Values.traefikExternalHostname }}/auth/error
+    settings:
+      ui_url: https://{{ .Values.traefikExternalHostname }}/user/settings
+      privileged_session_max_age: 15m
+    registration:
+      ui_url: https://{{ .Values.traefikExternalHostname }}/auth/register
+      after:
+        password:
+          hooks:
+            - hook: session
+        oidc:
+          hooks:
+            - hook: session
+    recovery:
+      enabled: true
+      ui_url: https://{{ .Values.traefikExternalHostname }}/auth/recovery
+    logout:
+      after:
+        default_browser_return_url: https://{{ .Values.traefikExternalHostname }}/
+    login:
+      ui_url: https://{{ .Values.traefikExternalHostname }}/auth/login
+      after:
+        default_browser_return_url: https://{{ .Values.traefikExternalHostname }}/app/services
+      lifespan: 10m
+log:
+  level: debug
+secrets:
+  cookie:
+    - {{ .cookieSecret | b64dec | quote }}
+identity:
+  default_schema_url: file:///etc/kratos/user.schema.json
+courier:
+  smtp:
+    connection_uri: smtp://{{ .Values.smtp.username }}:{{ .Values.smtp.password }}@{{ .Values.smtp.host }}:{{ .Values.smtp.port }}
+    from_address: { { .Values.smtp.username } }
+{{ end }}

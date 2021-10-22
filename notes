@@ -32,4 +32,22 @@ https://helm.sh/docs/topics/charts_hooks/
 - helm install --dry-run --debug is a good way to find out whats being templated
 
 
-  # alertmanager_yml: {{ tpl (.Files.Get "config/alertmanager.yml") . }}
+discussion of how to restart containers when secrets change:
+https://github.com/kubernetes/kubernetes/issues/24957
+
+------------------------------------------------------
+
+  22/10/21
+
+- create a service account (and make a manifest for this?)
+    with access to specific list of secrets in nearbyone-controller namespace - nso-secret, oathkeeper-secret
+    scope this to a namespace and check that only the correct secrets are being read.
+- k8s Job or Pod that:
+    checks whether the secret has already been created and has the expected value (non-empty, or for bonus points, validate against expected format)
+    if not, runs the "generate" command && sets the secret
+      find a minimal kubectl image, then we can think about building custom images (kubectl + openssh, kubectl + oathkeeper)
+      running kubectl get secret secret-name from inside the container would be enough to verify that it works as expected
+      also will then need to give the service account secret-write permissions
+
+kubectl apply -f manifests/serviceaccount.yml
+kubectl create rolebinding secretpeeper --clusterrole=secret-reader --serviceaccount=default:secret-peeper --namespace=default

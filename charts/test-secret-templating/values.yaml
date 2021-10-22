@@ -1,1 +1,13 @@
 SecretName: ""
+alertaDB:
+  user: someguy
+  db: somebox
+
+traefikExternalHostname: ""
+kratos:
+  passwordEnabled: true
+smtp:
+  username: ""
+  password: ""
+  host: ""
+  port: 0
