@@ -2,5 +2,5 @@ nsoSecretName: "nso-secret"
 
 oathkeeper:
   secret:
+    name: "oathkeeper-secret"
     managed: false
-    name: oathkeeper-secret

@@ -9,6 +9,7 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
+      serviceAccountName: secret-keeper
       containers:
         - name: gen-secret
           image: registry.nearbycomputing.com/nbycomp/tools/oathkeeper
@@ -29,4 +30,3 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-      serviceAccountName: secret-keeper
