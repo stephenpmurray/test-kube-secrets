@@ -1,0 +1,100 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: couchbase-deployment
+spec:
+  serviceName: "couchbase"
+  selector:
+    matchLabels:
+      app: couchbase
+  template:
+    metadata:
+      labels:
+        app: couchbase
+    spec:
+      containers:
+        - name: couchbase
+          image: couchbase:community-6.5.1
+          command:
+            - bash
+            - -c
+            - |
+              set -m
+
+              /entrypoint.sh couchbase-server &
+
+              until curl -I -s http://localhost:8091/ui/index.html
+              do
+                  echo 'Waiting for Couchbase to start (retrying in 3 seconds)...' >&2
+                  sleep 3
+              done
+
+              echo 'init node' >&2
+              couchbase-cli node-init \
+                --cluster "localhost:8091" \
+                --username "$DB_USER" \
+                --password "$DB_PASSWORD" \
+                --node-init-data-path=/opt/couchbase/var/lib/couchbase/data \
+                --node-init-index-path=/opt/couchbase/var/lib/couchbase/data
+
+              echo 'init cluster' >&2
+              couchbase-cli cluster-init \
+                --cluster "localhost:8091" \
+                --cluster-username="$DB_USER" \
+                --cluster-password="$DB_PASSWORD" \
+                --services=data,index,query,fts \
+                --cluster-ramsize="$CLUSTER_RAMSIZE"
+
+              echo 'create bucket' >&2
+              couchbase-cli bucket-create \
+                --bucket-type=couchbase \
+                --bucket="$BUCKET_NAME" \
+                --cluster "localhost:8091" \
+                --username="$DB_USER" \
+                --password="$DB_PASSWORD" \
+                --wait \
+                --bucket-ramsize "$BUCKET_RAMSIZE" \
+                --enable-flush 1
+
+              echo 'Couchbase ready' >&2
+
+              fg 1
+          env:
+            - name: DB_HOST
+              value: couchbase
+            - name: DB_USER
+              value: admin
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: couchbase-secret
+                  key: password
+            - name: BUCKET_NAME
+              value: {{ .Values.bucketName }}
+            - name: CLUSTER_RAMSIZE
+              value: {{ .Values.clusterRAMSize | quote }}
+            - name: BUCKET_RAMSIZE
+              value: {{ .Values.bucketRAMSize | quote }}
+          resources:
+            limits:
+              memory: "4Gi"
+              cpu: "1"
+          volumeMounts:
+            - mountPath: /opt/couchbase/var/
+              name: couchbase-db
+          ports:
+            - containerPort: 8091
+            - containerPort: 8092
+            - containerPort: 8093
+            - containerPort: 8094
+            - containerPort: 11210
+  volumeClaimTemplates:
+  - metadata:
+      name: couchbase-db
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.storageClassName | quote }}
+      resources:
+        requests:
+          storage: 1Gi

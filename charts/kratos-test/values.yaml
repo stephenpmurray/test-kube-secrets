@@ -1,0 +1,20 @@
+# kratos db config here:
+postgresql:
+  postgresqlUsername: kratosuser #  POSTGRES_USER
+  existingSecret: kratos-db-secret # POSTGRES_PASSWORD set in pre-deployment
+  postgresqlDatabase: kratos # POSTGRES_DB
+  # postgresqlDataDir: /var/lib/postgresql/data/db-files/ # PGDATA. required?
+  persistence:
+    enabled: false
+  #   existingClaim: kratos-db # set in pre-deployment
+
+  # TODO:
+  # kratos-migrate
+  # kratos config is mounted by postgres in our current deployment (needed?)
+  # DSN secret - this is required by kratos
+
+  # minikube fixes
+  # volumePermissions:
+  #   enabled: true
+  # securityContext:
+  #   fsGroup: 0

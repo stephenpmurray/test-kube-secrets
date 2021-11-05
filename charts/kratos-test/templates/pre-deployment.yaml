@@ -1,0 +1,59 @@
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: kratos-db-secret
+#   annotations:
+#     "helm.sh/hook": pre-install,pre-upgrade
+# type: Opaque
+# data:
+#   {{- $fetched := (lookup "v1" "Secret" .Release.Namespace "kratos-db-secret") | default (dict "data" dict)}}
+#   {{- $password := (index $fetched.data "postgresql-password") | default (randAlphaNum 32 | b64enc) }}
+#   {{- $sudopassword := (index $fetched.data "postgresql-postgres-password") | default (randAlphaNum 32 | b64enc) }}
+#   postgresql-password: {{ $password }}
+#   postgresql-postgres-password: {{ $sudopassword }}
+#   dsn: {{ (include "kratosDsnTpl" (dict "pass" $password )) | b64enc }}
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: kratos-db
+#   annotations:
+#     "helm.sh/hook": pre-install,pre-upgrade
+# spec:
+#   resources:
+#     requests:
+#       storage: "100Mi"
+#   volumeMode: Filesystem
+#   accessModes:
+#     - ReadWriteMany
+#   storageClassName: longhorn
+###########################################################################################
+### everything below here is just to make this work on minikube (which doesn't have longhorn)
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kratospv
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: "100Mi"
+  hostPath:
+    path: /data/kratospv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kratos-db
+spec:
+  volumeName: kratospv
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: "100Mi"
+  storageClassName: ""

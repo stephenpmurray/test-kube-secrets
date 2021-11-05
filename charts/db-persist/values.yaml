@@ -1,0 +1,9 @@
+bucketName: service-defs
+clusterRAMSize: 1024
+bucketRAMSize: 1024
+
+global:
+  versions:
+    db_init: stephen # 0.0.98
+
+storageClassName: "thin"

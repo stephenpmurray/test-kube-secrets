@@ -1,0 +1,11 @@
+apiVersion: v2
+name: kratos-env
+version: 0.0.1
+
+dependencies:
+  - name: postgresql
+    version: ~10.12.7
+    repository: https://charts.bitnami.com/bitnami
+  # - name: kratos
+  #   version: ~0.20.0
+  #   respository: https://k8s.ory.sh/helm/charts
